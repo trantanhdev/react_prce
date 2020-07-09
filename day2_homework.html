@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Day 2 Homework React App</title>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@16/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <h1>Day 2 Homework</h1>
+    <div id="app"></div>
+    <script type="text/babel">
+      function LikedFruitList(props) {
+        return (
+          <ul>
+            {props.fruits.map((name) => (
+              <li key={name}>
+                <span>{name}</span>
+                <button onClick={() => props.onUnlikeFruit(name)}>
+                  Unlike
+                </button>
+                <button onClick={() => props.onRemoveFruit(name)}>
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      function UnlikedFruitList(props) {
+        return (
+          <ul>
+            {props.fruits.map((name) => (
+              <li key={name}>
+                <span>{name}</span>
+                <button onClick={() => props.onLikeFruit(name)}>Like</button>
+                <button onClick={() => props.onRemoveFruit(name)}>
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      class App extends React.Component {
+        constructor(props) {
+          super(props);
+
+          this.state = {
+            likedFruits: ["Strawberry", "Apple"],
+            unlikedFruits: ["Banana"],
+            input: "",
+          };
+
+          this.handleInputChanged = this.handleInputChanged.bind(this);
+          this.handleAddFruit = this.handleAddFruit.bind(this);
+          this.handleRemoveLikedFruit = this.handleRemoveLikedFruit.bind(this);
+          this.handleRemoveUnlikedFruit = this.handleRemoveUnlikedFruit.bind(
+            this
+          );
+          this.likeFruit = this.likeFruit.bind(this);
+          this.unlikeFruit = this.unlikeFruit.bind(this);
+        }
+
+        handleAddFruit() {
+          this.setState((currentState) => {
+            return {
+              unlikedFruits: currentState.unlikedFruits.concat([
+                currentState.input,
+              ]),
+              input: "",
+            };
+          });
+        }
+
+        handleInputChanged(e) {
+          const nValue = e.target.value;
+
+          this.setState((currentState) => {
+            return {
+              input: nValue,
+            };
+          });
+        }
+
+        handleRemoveLikedFruit(name) {
+          this.setState((currentState) => {
+            return {
+              likedFruits: currentState.likedFruits.filter(
+                (fruit) => fruit !== name
+              ),
+            };
+          });
+        }
+
+        handleRemoveUnlikedFruit(name) {
+          this.setState((currentState) => {
+            return {
+              unlikedFruits: currentState.unlikedFruits.filter(
+                (fruit) => fruit !== name
+              ),
+            };
+          });
+        }
+
+        likeFruit(name) {
+          this.setState((currentState) => {
+            return {
+              unlikedFruits: currentState.unlikedFruits.filter(
+                (fruit) => fruit !== name
+              ),
+              likedFruits: currentState.likedFruits.concat([name]),
+            };
+          });
+        }
+
+        unlikeFruit(name) {
+          this.setState((currentState) => {
+            return {
+              unlikedFruits: currentState.unlikedFruits.concat([name]),
+              likedFruits: currentState.likedFruits.filter(
+                (fruit) => fruit !== name
+              ),
+            };
+          });
+        }
+
+        render() {
+          return (
+            <div>
+              <input
+                type="text"
+                placeholder="New fruit"
+                value={this.state.input}
+                onChange={this.handleInputChanged}
+              ></input>
+              <button onClick={this.handleAddFruit}>Add Fruit</button>
+              <h2>Liked fruits</h2>
+              <LikedFruitList
+                fruits={this.state.likedFruits}
+                onRemoveFruit={this.handleRemoveLikedFruit}
+                onUnlikeFruit={this.unlikeFruit}
+              />
+              <h2>Unliked fruits</h2>
+              <UnlikedFruitList
+                fruits={this.state.unlikedFruits}
+                onRemoveFruit={this.handleRemoveUnlikedFruit}
+                onLikeFruit={this.likeFruit}
+              />
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<App />, document.getElementById("app"));
+    </script>
+  </body>
+</html>
