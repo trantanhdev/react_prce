@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Day 4 React App</title>
+    <script
+      crossorigin
+      src="https://unpkg.com/react@16/umd/react.development.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <h1>Day 4: Loading repositories by languages</h1>
+    <div id="app"></div>
+    <script type="text/javascript">
+      window.API = {
+        // fetchFruits() {
+        //   return new Promise((res, rej) => {
+        //     const fruits = [
+        //       { name: "Apple", isLiked: true },
+        //       { name: "Banana", isLiked: false },
+        //       { name: "Strawberry", isLiked: true },
+        //     ];
+        //     setInterval(() => res(fruits), 5000);
+        //   });
+        // },
+      };
+    </script>
+    <script type="text/babel">
+      function Nav(props) {
+        const langs = ["All", "Javascript", "PHP"];
+        return (
+          <nav>
+            <ul>
+              {langs.map((lang) => (
+                <li key={lang} onClick={() => props.onSelectLanguage(lang)}>
+                  {lang}
+                </li>
+              ))}
+            </ul>
+          </nav>
+        );
+      }
+
+      class Loading extends React.Component {
+        constructor(props) {
+          super(props);
+
+          this.state = {
+            text: "Loading",
+          };
+        }
+
+        componentDidMount() {
+          const stopper = this.state.text + "...";
+
+          this.interval = window.setInterval(() => {
+            this.state.text === stopper
+              ? this.setState({ text: "Loading" })
+              : this.setState((currentState) => {
+                  return { text: currentState.text + "." };
+                });
+          }, 300);
+        }
+
+        componentWillUnmount() {
+          console.log("--componentWillUnmount");
+          window.clearInterval(this.interval);
+        }
+
+        render() {
+          return <p>{this.state.text}</p>;
+        }
+      }
+
+      class App extends React.Component {
+        constructor(props) {
+          super(props);
+
+          this.state = {
+            repos: [],
+            sLang: "All",
+            loading: true,
+          };
+
+          this.handleSelectLanguage = this.handleSelectLanguage.bind(this);
+        }
+
+        componentDidMount() {
+          //console.log("--componentDidMount");
+        }
+        componentDidUpdate() {
+          //console.log("--componentDidUpdate");
+        }
+        componentWillUnmount() {
+          //console.log("--componentWillUnmount");
+        }
+
+        handleSelectLanguage(nLang) {
+          this.setState((currentState) => {
+            return {
+              sLang: nLang,
+            };
+          });
+        }
+
+        render() {
+          console.log("--render");
+          return (
+            <div>
+              <Nav onSelectLanguage={this.handleSelectLanguage} />
+              <h3>Selected language is: {this.state.sLang}</h3>
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<App />, document.getElementById("app"));
+    </script>
+  </body>
+</html>
