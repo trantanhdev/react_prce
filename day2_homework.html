@@ -20,35 +20,43 @@
     <script type="text/babel">
       function LikedFruitList(props) {
         return (
-          <ul>
-            {props.fruits.map((name) => (
-              <li key={name}>
-                <span>{name}</span>
-                <button onClick={() => props.onUnlikeFruit(name)}>
-                  Unlike
-                </button>
-                <button onClick={() => props.onRemoveFruit(name)}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <h2>Liked fruits</h2>
+            <ul>
+              {props.fruits.map((fruit) => (
+                <li key={fruit.name}>
+                  <span>{fruit.name}</span>
+                  <button onClick={() => props.onToggleFruit(fruit.name)}>
+                    Unlike
+                  </button>
+                  <button onClick={() => props.onRemoveFruit(fruit.name)}>
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         );
       }
 
       function UnlikedFruitList(props) {
         return (
-          <ul>
-            {props.fruits.map((name) => (
-              <li key={name}>
-                <span>{name}</span>
-                <button onClick={() => props.onLikeFruit(name)}>Like</button>
-                <button onClick={() => props.onRemoveFruit(name)}>
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <h2>Unliked Fruits</h2>
+            <ul>
+              {props.fruits.map((fruit) => (
+                <li key={fruit.name}>
+                  <span>{fruit.name}</span>
+                  <button onClick={() => props.onToggleFruit(fruit.name)}>
+                    Like
+                  </button>
+                  <button onClick={() => props.onRemoveFruit(fruit.name)}>
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         );
       }
 
@@ -57,26 +65,26 @@
           super(props);
 
           this.state = {
-            likedFruits: ["Strawberry", "Apple"],
-            unlikedFruits: ["Banana"],
+            fruits: [
+              { name: "Apple", isLiked: true },
+              { name: "Banana", isLiked: false },
+              { name: "Strawberry", isLiked: true },
+            ],
             input: "",
           };
 
           this.handleInputChanged = this.handleInputChanged.bind(this);
           this.handleAddFruit = this.handleAddFruit.bind(this);
-          this.handleRemoveLikedFruit = this.handleRemoveLikedFruit.bind(this);
-          this.handleRemoveUnlikedFruit = this.handleRemoveUnlikedFruit.bind(
-            this
-          );
-          this.likeFruit = this.likeFruit.bind(this);
-          this.unlikeFruit = this.unlikeFruit.bind(this);
+          this.handleClearAll = this.handleClearAll.bind(this);
+          this.handleRemoveFruit = this.handleRemoveFruit.bind(this);
+          this.toggleFruit = this.toggleFruit.bind(this);
         }
 
         handleAddFruit() {
           this.setState((currentState) => {
             return {
-              unlikedFruits: currentState.unlikedFruits.concat([
-                currentState.input,
+              fruits: currentState.fruits.concat([
+                { name: currentState.input, isLiked: false },
               ]),
               input: "",
             };
@@ -93,44 +101,35 @@
           });
         }
 
-        handleRemoveLikedFruit(name) {
+        handleClearAll() {
           this.setState((currentState) => {
             return {
-              likedFruits: currentState.likedFruits.filter(
-                (fruit) => fruit !== name
+              fruits: [],
+            };
+          });
+        }
+
+        handleRemoveFruit(name) {
+          this.setState((currentState) => {
+            return {
+              fruits: currentState.fruits.filter(
+                (fruit) => fruit.name !== name
               ),
             };
           });
         }
 
-        handleRemoveUnlikedFruit(name) {
+        toggleFruit(name) {
           this.setState((currentState) => {
-            return {
-              unlikedFruits: currentState.unlikedFruits.filter(
-                (fruit) => fruit !== name
-              ),
-            };
-          });
-        }
+            const oFruit = currentState.fruits.find(
+              (fruit) => fruit.name === name
+            );
+            oFruit.isLiked = !oFruit.isLiked;
 
-        likeFruit(name) {
-          this.setState((currentState) => {
             return {
-              unlikedFruits: currentState.unlikedFruits.filter(
-                (fruit) => fruit !== name
-              ),
-              likedFruits: currentState.likedFruits.concat([name]),
-            };
-          });
-        }
-
-        unlikeFruit(name) {
-          this.setState((currentState) => {
-            return {
-              unlikedFruits: currentState.unlikedFruits.concat([name]),
-              likedFruits: currentState.likedFruits.filter(
-                (fruit) => fruit !== name
-              ),
+              fruits: currentState.fruits
+                .filter((fruit) => fruit.name !== name)
+                .concat([oFruit]),
             };
           });
         }
@@ -145,17 +144,20 @@
                 onChange={this.handleInputChanged}
               ></input>
               <button onClick={this.handleAddFruit}>Add Fruit</button>
-              <h2>Liked fruits</h2>
+              <button onClick={this.handleClearAll}>Clear all</button>
               <LikedFruitList
-                fruits={this.state.likedFruits}
-                onRemoveFruit={this.handleRemoveLikedFruit}
-                onUnlikeFruit={this.unlikeFruit}
+                fruits={this.state.fruits.filter(
+                  (fruit) => fruit.isLiked === true
+                )}
+                onRemoveFruit={this.handleRemoveFruit}
+                onToggleFruit={this.toggleFruit}
               />
-              <h2>Unliked fruits</h2>
               <UnlikedFruitList
-                fruits={this.state.unlikedFruits}
-                onRemoveFruit={this.handleRemoveUnlikedFruit}
-                onLikeFruit={this.likeFruit}
+                fruits={this.state.fruits.filter(
+                  (fruit) => fruit.isLiked != true
+                )}
+                onRemoveFruit={this.handleRemoveFruit}
+                onToggleFruit={this.toggleFruit}
               />
             </div>
           );
