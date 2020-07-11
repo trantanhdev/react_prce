@@ -19,16 +19,17 @@
     <div id="app"></div>
     <script type="text/javascript">
       window.API = {
-        // fetchFruits() {
-        //   return new Promise((res, rej) => {
-        //     const fruits = [
-        //       { name: "Apple", isLiked: true },
-        //       { name: "Banana", isLiked: false },
-        //       { name: "Strawberry", isLiked: true },
-        //     ];
-        //     setInterval(() => res(fruits), 5000);
-        //   });
-        // },
+        fetchPopularRepos(language) {
+          const encodedURI = `https://api.github.com/search/repositories?q=stars%3E1+language:${language}&sort=stars&order=desc&type=Repositories`;
+
+          return fetch(encodedURI)
+            .then((data) => data.json())
+            .then((repos) => repos.items)
+            .catch((error) => {
+              console.warn(error);
+              return null;
+            });
+        },
       };
     </script>
     <script type="text/babel">
@@ -44,6 +45,30 @@
               ))}
             </ul>
           </nav>
+        );
+      }
+
+      function GridRepo(props) {
+        return (
+          <ul
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              listStyleType: "none",
+            }}
+          >
+            {props.repos.map(({ name, owner, stargazers_count, html_url }) => (
+              <li key={name}>
+                <ul>
+                  <li>
+                    <a href={html_url}>{name}</a>
+                  </li>
+                  <li>@{owner.login}</li>
+                  <li>{stargazers_count}</li>
+                </ul>
+              </li>
+            ))}
+          </ul>
         );
       }
 
@@ -69,7 +94,7 @@
         }
 
         componentWillUnmount() {
-          console.log("--componentWillUnmount");
+          //console.log("--componentWillUnmount");
           window.clearInterval(this.interval);
         }
 
@@ -89,16 +114,37 @@
           };
 
           this.handleSelectLanguage = this.handleSelectLanguage.bind(this);
+          this.fetchRepos = this.fetchRepos.bind(this);
+        }
+
+        fetchRepos(lang) {
+          this.setState({
+            loading: true,
+          });
+
+          API.fetchPopularRepos(lang).then((data) => {
+            this.setState(() => {
+              return {
+                loading: false,
+                repos: data,
+              };
+            });
+          });
         }
 
         componentDidMount() {
           //console.log("--componentDidMount");
+          this.fetchRepos(this.state.sLang);
         }
-        componentDidUpdate() {
+        componentDidUpdate(prevProps, prevState) {
           //console.log("--componentDidUpdate");
+          if (prevState.sLang != this.state.sLang) {
+            this.fetchRepos(this.state.sLang);
+          }
         }
         componentWillUnmount() {
           //console.log("--componentWillUnmount");
+          this.state.loading = false;
         }
 
         handleSelectLanguage(nLang) {
@@ -110,11 +156,15 @@
         }
 
         render() {
-          console.log("--render");
+          if (this.state.loading) {
+            return <Loading />;
+          }
+
           return (
             <div>
               <Nav onSelectLanguage={this.handleSelectLanguage} />
               <h3>Selected language is: {this.state.sLang}</h3>
+              <GridRepo repos={this.state.repos} />
             </div>
           );
         }
